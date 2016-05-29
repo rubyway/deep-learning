@@ -2,3 +2,5 @@ soft-max 用于多分类问题
 比如w*x计算得到一列y值为[2, 1, 0.1],soft-max即为e^yi/sum(e^yi), 得到[0.7, 0.2, 0.1]，即概率分布
 http://www.cnblogs.com/tornadomeet/archive/2013/03/22/2975978.html
 二分类使用sigmoid函数即可
+
+cross-entropy 计算soft-max后类值和one-hot后类值距离，多分类问题目标函数就是最小化该距离
