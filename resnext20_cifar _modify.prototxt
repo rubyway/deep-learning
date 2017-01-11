@@ -1,5 +1,3 @@
-# Enter your network definition here.
-# Use Shift+Enter to update the visualization.
 
 name: "resneXt_cifar10"
 
@@ -41,6 +39,18 @@ layer {
 }
 
 layer {
+  name: "bn0"
+  type: "BatchNorm"
+  bottom: "data"
+  top: "data"
+  batch_norm_param {
+    use_global_stats: true
+    eps: 2e-5
+  }
+}
+
+
+layer {
   name: "conv0"
   type: "Convolution"
   bottom: "data"
@@ -54,16 +64,7 @@ layer {
   }
 }
 
-layer {
-  name: "bn0"
-  type: "BatchNorm"
-  bottom: "conv0"
-  top: "conv0"
-  batch_norm_param {
-    use_global_stats: true
-    eps: 2e-5
-  }
-}
+
 
 layer {
   name: "scale_bn0"
@@ -75,12 +76,12 @@ layer {
   }
 }
 
-layer {
-  name: "relu0"
-  type: "ReLU"
-  bottom: "conv0"
-  top: "conv0"
-}
+#layer {
+#  name: "relu0"
+#  type: "ReLU"
+#  bottom: "conv0"
+#  top: "conv0"
+#}
 
 #layer {
 #  name: "pooling0"
@@ -101,9 +102,9 @@ layer {
   top: "stage1_unit1_conv1"
   convolution_param { 
      num_output: 16
-     kernel_size: 1
+     kernel_size: 3
      stride: 1
-     pad: 0
+     pad: 1
      bias_term: true
   }
 }
@@ -172,17 +173,11 @@ layer {
   }
 }
 
-layer {
-  name: "stage1_unit1_relu2"
-  type: "ReLU"
-  bottom: "stage1_unit1_conv2"
-  top: "stage1_unit1_conv2"
-}
 
 layer {
   name: "stage1_unit1_conv3"
   type: "Convolution"
-  bottom: "stage1_unit1_conv2"
+  bottom: "conv0"
   top: "stage1_unit1_conv3"
   convolution_param { 
      num_output: 16
@@ -218,8 +213,8 @@ layer {
 layer {
   name: "stage1_unit1_plus"
   type: "Eltwise"
-  bottom: "conv0"
   bottom: "stage1_unit1_conv3"
+  bottom: "stage1_unit1_conv2"
   top: "stage1_unit1_plus"
   eltwise_param {
      operation: SUM
@@ -240,9 +235,9 @@ layer {
   top: "stage1_unit2_conv1"
   convolution_param { 
      num_output: 16
-     kernel_size: 1
+     kernel_size: 3
      stride: 1
-     pad: 0
+     pad: 1
      bias_term: true
   }
 }
@@ -311,53 +306,13 @@ layer {
   }
 }
 
-layer {
-  name: "stage1_unit2_relu2"
-  type: "ReLU"
-  bottom: "stage1_unit2_conv2"
-  top: "stage1_unit2_conv2"
-}
 
-layer {
-  name: "stage1_unit2_conv3"
-  type: "Convolution"
-  bottom: "stage1_unit2_conv2"
-  top: "stage1_unit2_conv3"
-  convolution_param { 
-     num_output: 16
-     kernel_size: 1
-     stride: 1
-     pad: 0
-     bias_term: true
-  }
-}
-
-layer {
-  name: "stage1_unit2_bn3"
-  type: "BatchNorm"
-  bottom: "stage1_unit2_conv3"
-  top: "stage1_unit2_conv3"
-  batch_norm_param {
-    use_global_stats: true
-    eps: 2e-5
-  }
-}
-
-layer {
-  name: "scale_stage1_unit2_bn3"
-  bottom: "stage1_unit2_conv3"
-  top: "stage1_unit2_conv3"
-  type: "Scale"
-  scale_param {
-        bias_term: true
-  }
-}
 
 layer {
   name: "stage1_unit2_plus"
   type: "Eltwise"
   bottom: "stage1_unit1_plus"
-  bottom: "stage1_unit2_conv3"
+  bottom: "stage1_unit2_conv2"
   top: "stage1_unit2_plus"
   eltwise_param {
      operation: SUM
@@ -378,9 +333,9 @@ layer {
   top: "stage1_unit3_conv1"
   convolution_param { 
      num_output: 16
-     kernel_size: 1
+     kernel_size: 3
      stride: 1
-     pad: 0
+     pad: 1
      bias_term: true
   }
 }
@@ -449,53 +404,12 @@ layer {
   }
 }
 
-layer {
-  name: "stage1_unit3_relu2"
-  type: "ReLU"
-  bottom: "stage1_unit3_conv2"
-  top: "stage1_unit3_conv2"
-}
-
-layer {
-  name: "stage1_unit3_conv3"
-  type: "Convolution"
-  bottom: "stage1_unit3_conv2"
-  top: "stage1_unit3_conv3"
-  convolution_param { 
-     num_output: 16
-     kernel_size: 1
-     stride: 1
-     pad: 0
-     bias_term: true
-  }
-}
-
-layer {
-  name: "stage1_unit3_bn3"
-  type: "BatchNorm"
-  bottom: "stage1_unit3_conv3"
-  top: "stage1_unit3_conv3"
-  batch_norm_param {
-    use_global_stats: true
-    eps: 2e-5
-  }
-}
-
-layer {
-  name: "scale_stage1_unit3_bn3"
-  bottom: "stage1_unit3_conv3"
-  top: "stage1_unit3_conv3"
-  type: "Scale"
-  scale_param {
-        bias_term: true
-  }
-}
 
 layer {
   name: "stage1_unit3_plus"
   type: "Eltwise"
   bottom: "stage1_unit2_plus"
-  bottom: "stage1_unit3_conv3"
+  bottom: "stage1_unit3_conv2"
   top: "stage1_unit3_plus"
   eltwise_param {
      operation: SUM
@@ -516,9 +430,9 @@ layer {
   top: "stage2_unit1_conv1"
   convolution_param { 
      num_output: 32
-     kernel_size: 1
-     stride: 1
-     pad: 0
+     kernel_size: 3
+     stride: 2
+     pad: 1
      bias_term: true
   }
 }
@@ -559,7 +473,7 @@ layer {
   convolution_param { 
      num_output: 32
      kernel_size: 3
-     stride: 2
+     stride: 1
      group: 32
      pad: 1
      bias_term: true
@@ -587,47 +501,6 @@ layer {
   }
 }
 
-layer {
-  name: "stage2_unit1_relu2"
-  type: "ReLU"
-  bottom: "stage2_unit1_conv2"
-  top: "stage2_unit1_conv2"
-}
-
-layer {
-  name: "stage2_unit1_conv3"
-  type: "Convolution"
-  bottom: "stage2_unit1_conv2"
-  top: "stage2_unit1_conv3"
-  convolution_param { 
-     num_output: 32
-     kernel_size: 1
-     stride: 1
-     pad: 0
-     bias_term: true
-  }
-}
-
-layer {
-  name: "stage2_unit1_bn3"
-  type: "BatchNorm"
-  bottom: "stage2_unit1_conv3"
-  top: "stage2_unit1_conv3"
-  batch_norm_param {
-    use_global_stats: true
-    eps: 2e-5
-  }
-}
-
-layer {
-  name: "scale_stage2_unit1_bn3"
-  bottom: "stage2_unit1_conv3"
-  top: "stage2_unit1_conv3"
-  type: "Scale"
-  scale_param {
-        bias_term: true
-  }
-}
 
 layer {
   name: "stage2_unit1_sc"
@@ -668,7 +541,7 @@ layer {
   name: "stage2_unit1_plus"
   type: "Eltwise"
   bottom: "stage2_unit1_sc"
-  bottom: "stage2_unit1_conv3"
+  bottom: "stage2_unit1_conv2"
   top: "stage2_unit1_plus"
   eltwise_param {
      operation: SUM
@@ -689,9 +562,9 @@ layer {
   top: "stage2_unit2_conv1"
   convolution_param { 
      num_output: 32
-     kernel_size: 1
+     kernel_size: 3
      stride: 1
-     pad: 0
+     pad: 1
      bias_term: true
   }
 }
@@ -760,53 +633,13 @@ layer {
   }
 }
 
-layer {
-  name: "stage2_unit2_relu2"
-  type: "ReLU"
-  bottom: "stage2_unit2_conv2"
-  top: "stage2_unit2_conv2"
-}
 
-layer {
-  name: "stage2_unit2_conv3"
-  type: "Convolution"
-  bottom: "stage2_unit2_conv2"
-  top: "stage2_unit2_conv3"
-  convolution_param { 
-     num_output: 32
-     kernel_size: 1
-     stride: 1
-     pad: 0
-     bias_term: true
-  }
-}
-
-layer {
-  name: "stage2_unit2_bn3"
-  type: "BatchNorm"
-  bottom: "stage2_unit2_conv3"
-  top: "stage2_unit2_conv3"
-  batch_norm_param {
-    use_global_stats: true
-    eps: 2e-5
-  }
-}
-
-layer {
-  name: "scale_stage2_unit2_bn3"
-  bottom: "stage2_unit2_conv3"
-  top: "stage2_unit2_conv3"
-  type: "Scale"
-  scale_param {
-        bias_term: true
-  }
-}
 
 layer {
   name: "stage2_unit2_plus"
   type: "Eltwise"
   bottom: "stage2_unit1_plus"
-  bottom: "stage2_unit2_conv3"
+  bottom: "stage2_unit2_conv2"
   top: "stage2_unit2_plus"
   eltwise_param {
      operation: SUM
@@ -827,9 +660,9 @@ layer {
   top: "stage2_unit3_conv1"
   convolution_param { 
      num_output: 32
-     kernel_size: 1
+     kernel_size: 3
      stride: 1
-     pad: 0
+     pad: 1
      bias_term: true
   }
 }
@@ -898,53 +731,12 @@ layer {
   }
 }
 
-layer {
-  name: "stage2_unit3_relu2"
-  type: "ReLU"
-  bottom: "stage2_unit3_conv2"
-  top: "stage2_unit3_conv2"
-}
-
-layer {
-  name: "stage2_unit3_conv3"
-  type: "Convolution"
-  bottom: "stage2_unit3_conv2"
-  top: "stage2_unit3_conv3"
-  convolution_param { 
-     num_output: 32
-     kernel_size: 1
-     stride: 1
-     pad: 0
-     bias_term: true
-  }
-}
-
-layer {
-  name: "stage2_unit3_bn3"
-  type: "BatchNorm"
-  bottom: "stage2_unit3_conv3"
-  top: "stage2_unit3_conv3"
-  batch_norm_param {
-    use_global_stats: true
-    eps: 2e-5
-  }
-}
-
-layer {
-  name: "scale_stage2_unit3_bn3"
-  bottom: "stage2_unit3_conv3"
-  top: "stage2_unit3_conv3"
-  type: "Scale"
-  scale_param {
-        bias_term: true
-  }
-}
 
 layer {
   name: "stage2_unit3_plus"
   type: "Eltwise"
   bottom: "stage2_unit2_plus"
-  bottom: "stage2_unit3_conv3"
+  bottom: "stage2_unit3_conv2"
   top: "stage2_unit3_plus"
   eltwise_param {
      operation: SUM
@@ -960,11 +752,6 @@ layer {
 
 
 
-
-
-
-
-
 layer {
   name: "stage3_unit1_conv1"
   type: "Convolution"
@@ -972,9 +759,9 @@ layer {
   top: "stage3_unit1_conv1"
   convolution_param { 
      num_output: 64
-     kernel_size: 1
-     stride: 1
-     pad: 0
+     kernel_size: 3
+     stride: 2
+     pad: 1
      bias_term: true
   }
 }
@@ -1015,7 +802,7 @@ layer {
   convolution_param { 
      num_output: 64
      kernel_size: 3
-     stride: 2
+     stride: 1
      group: 32
      pad: 1
      bias_term: true
@@ -1043,47 +830,7 @@ layer {
   }
 }
 
-layer {
-  name: "stage3_unit1_relu2"
-  type: "ReLU"
-  bottom: "stage3_unit1_conv2"
-  top: "stage3_unit1_conv2"
-}
 
-layer {
-  name: "stage3_unit1_conv3"
-  type: "Convolution"
-  bottom: "stage3_unit1_conv2"
-  top: "stage3_unit1_conv3"
-  convolution_param { 
-     num_output: 64
-     kernel_size: 1
-     stride: 1
-     pad: 0
-     bias_term: true
-  }
-}
-
-layer {
-  name: "stage3_unit1_bn3"
-  type: "BatchNorm"
-  bottom: "stage3_unit1_conv3"
-  top: "stage3_unit1_conv3"
-  batch_norm_param {
-    use_global_stats: true
-    eps: 2e-5
-  }
-}
-
-layer {
-  name: "scale_stage3_unit1_bn3"
-  bottom: "stage3_unit1_conv3"
-  top: "stage3_unit1_conv3"
-  type: "Scale"
-  scale_param {
-        bias_term: true
-  }
-}
 
 layer {
   name: "stage3_unit1_sc"
@@ -1124,7 +871,7 @@ layer {
   name: "stage3_unit1_plus"
   type: "Eltwise"
   bottom: "stage3_unit1_sc"
-  bottom: "stage3_unit1_conv3"
+  bottom: "stage3_unit1_conv2"
   top: "stage3_unit1_plus"
   eltwise_param {
      operation: SUM
@@ -1145,9 +892,9 @@ layer {
   top: "stage3_unit2_conv1"
   convolution_param { 
      num_output: 64
-     kernel_size: 1
+     kernel_size: 3
      stride: 1
-     pad: 0
+     pad: 1
      bias_term: true
   }
 }
@@ -1216,53 +963,13 @@ layer {
   }
 }
 
-layer {
-  name: "stage3_unit2_relu2"
-  type: "ReLU"
-  bottom: "stage3_unit2_conv2"
-  top: "stage3_unit2_conv2"
-}
 
-layer {
-  name: "stage3_unit2_conv3"
-  type: "Convolution"
-  bottom: "stage3_unit2_conv2"
-  top: "stage3_unit2_conv3"
-  convolution_param { 
-     num_output: 64
-     kernel_size: 1
-     stride: 1
-     pad: 0
-     bias_term: true
-  }
-}
-
-layer {
-  name: "stage3_unit2_bn3"
-  type: "BatchNorm"
-  bottom: "stage3_unit2_conv3"
-  top: "stage3_unit2_conv3"
-  batch_norm_param {
-    use_global_stats: true
-    eps: 2e-5
-  }
-}
-
-layer {
-  name: "scale_stage3_unit2_bn3"
-  bottom: "stage3_unit2_conv3"
-  top: "stage3_unit2_conv3"
-  type: "Scale"
-  scale_param {
-        bias_term: true
-  }
-}
 
 layer {
   name: "stage3_unit2_plus"
   type: "Eltwise"
   bottom: "stage3_unit1_plus"
-  bottom: "stage3_unit2_conv3"
+  bottom: "stage3_unit2_conv2"
   top: "stage3_unit2_plus"
   eltwise_param {
      operation: SUM
@@ -1283,9 +990,9 @@ layer {
   top: "stage3_unit3_conv1"
   convolution_param { 
      num_output: 64
-     kernel_size: 1
+     kernel_size: 3
      stride: 1
-     pad: 0
+     pad: 1
      bias_term: true
   }
 }
@@ -1354,53 +1061,13 @@ layer {
   }
 }
 
-layer {
-  name: "stage3_unit3_relu2"
-  type: "ReLU"
-  bottom: "stage3_unit3_conv2"
-  top: "stage3_unit3_conv2"
-}
 
-layer {
-  name: "stage3_unit3_conv3"
-  type: "Convolution"
-  bottom: "stage3_unit3_conv2"
-  top: "stage3_unit3_conv3"
-  convolution_param { 
-     num_output: 64
-     kernel_size: 1
-     stride: 1
-     pad: 0
-     bias_term: true
-  }
-}
-
-layer {
-  name: "stage3_unit3_bn3"
-  type: "BatchNorm"
-  bottom: "stage3_unit3_conv3"
-  top: "stage3_unit3_conv3"
-  batch_norm_param {
-    use_global_stats: true
-    eps: 2e-5
-  }
-}
-
-layer {
-  name: "scale_stage3_unit3_bn3"
-  bottom: "stage3_unit3_conv3"
-  top: "stage3_unit3_conv3"
-  type: "Scale"
-  scale_param {
-        bias_term: true
-  }
-}
 
 layer {
   name: "stage3_unit3_plus"
   type: "Eltwise"
   bottom: "stage3_unit2_plus"
-  bottom: "stage3_unit3_conv3"
+  bottom: "stage3_unit3_conv2"
   top: "stage3_unit3_plus"
   eltwise_param {
      operation: SUM
@@ -1475,4 +1142,3 @@ layer {
     phase: TEST
   }
 }
-
